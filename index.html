@@ -5,16 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sunbeam Podium Dashboard</title>
     
-    <!-- Import a friendly font suitable for Hack Club themes -->
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* =========================================
-           CSS VARIABLES: Sunbeam Theme Colors
-           ========================================= */
         :root {
             --sunbeam-yellow: #FFD700;
             --sunbeam-orange: #FF8C00;
@@ -36,9 +30,6 @@
             overflow-x: hidden;
         }
 
-        /* =========================================
-           SCREEN TRANSITIONS & LAYOUT
-           ========================================= */
         .screen {
             position: absolute;
             width: 100%;
@@ -49,21 +40,9 @@
             transition: opacity 0.8s ease, transform 0.8s ease;
         }
 
-        .hidden {
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(0.95);
-        }
+        .hidden { opacity: 0; pointer-events: none; transform: scale(0.95); }
+        .active { opacity: 1; pointer-events: all; transform: scale(1); }
 
-        .active {
-            opacity: 1;
-            pointer-events: all;
-            transform: scale(1);
-        }
-
-        /* =========================================
-           LOGIN SCREEN STYLES
-           ========================================= */
         #login-screen {
             flex-direction: column;
             background: radial-gradient(circle at center, var(--white) 0%, var(--background) 100%);
@@ -78,11 +57,7 @@
             border: 3px solid var(--sunbeam-yellow);
         }
 
-        h1 {
-            font-size: 3rem;
-            margin: 0 0 1rem 0;
-            color: var(--sunbeam-orange);
-        }
+        h1 { font-size: 3rem; margin: 0 0 1rem 0; color: var(--sunbeam-orange); }
 
         input[type="text"] {
             width: 80%;
@@ -92,12 +67,6 @@
             border-radius: 12px;
             font-size: 1.2rem;
             font-family: inherit;
-            transition: border-color 0.3s ease;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--sunbeam-yellow);
         }
 
         button {
@@ -111,22 +80,9 @@
             cursor: pointer;
             margin-top: 15px;
             font-family: inherit;
-            transition: transform 0.2s ease, background-color 0.2s ease;
-            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            background-color: #E67E00;
-        }
-
-        /* =========================================
-           DASHBOARD SCREEN STYLES
-           ========================================= */
-        #dashboard-screen {
-            padding: 2rem;
-            align-items: flex-start;
-        }
+        #dashboard-screen { padding: 2rem; align-items: flex-start; }
 
         .dashboard-container {
             display: grid;
@@ -147,69 +103,39 @@
             flex-direction: column;
         }
 
-        /* Left Side: Team Info */
         .team-header {
             font-size: 2.5rem;
             font-weight: 800;
             margin-bottom: 1rem;
             color: var(--sunbeam-orange);
             text-transform: uppercase;
-            letter-spacing: 2px;
             border-bottom: 3px dashed var(--sunbeam-yellow);
             padding-bottom: 10px;
         }
 
         .form-group {
-            margin-top: auto; /* Pushes to the bottom of the left block */
+            margin-top: auto;
             background: #FFF9E6;
             padding: 1.5rem;
             border-radius: 16px;
             margin-bottom: 1rem;
         }
 
-        .member-list {
-            list-style: none;
-            padding: 0;
-            margin: 10px 0 20px 0;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
+        .member-list { list-style: none; padding: 0; max-height: 150px; overflow-y: auto; }
         .member-list li {
             background: var(--sunbeam-yellow);
-            margin: 5px 0;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-weight: 600;
-            color: var(--text-dark);
+            margin: 5px 0; padding: 8px 15px;
+            border-radius: 8px; font-weight: 600;
         }
 
-        /* Right Side: Leaderboard */
-        .leaderboard-title {
-            font-size: 2rem;
-            color: var(--text-dark);
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .leaderboard-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            overflow-y: auto;
-        }
-
+        .leaderboard-title { font-size: 2rem; text-align: center; margin-bottom: 1rem; }
+        .leaderboard-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+        
         .team-card {
             background: linear-gradient(135deg, var(--sunbeam-yellow), var(--sunbeam-orange));
             color: var(--white);
-            padding: 15px 20px;
-            border-radius: 12px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 15px 20px; border-radius: 12px; font-size: 1.5rem; font-weight: 800;
+            display: flex; justify-content: space-between;
         }
     </style>
 </head>
@@ -222,7 +148,8 @@
             <p>Enter your team name to join the dashboard</p>
             <input type="text" id="team-name-input" placeholder="e.g. The Code Wizards">
             <br>
-            <button onclick="joinPodium()">Enter Dashboard</button>
+            <!-- Removed the old onclick attribute -->
+            <button id="btn-join">Enter Dashboard</button>
         </div>
     </div>
 
@@ -230,33 +157,26 @@
     <div id="dashboard-screen" class="screen hidden">
         <div class="dashboard-container">
             
-            <!-- Left Side: Team Information & Game Submission -->
             <div class="panel">
                 <div id="display-team-name" class="team-header">Loading Team...</div>
-                
-                <ul id="member-list-display" class="member-list">
-                    <!-- Members will populate here -->
-                </ul>
+                <ul id="member-list-display" class="member-list"></ul>
 
                 <div class="form-group">
                     <h3>Add Team Members</h3>
                     <input type="text" id="member-name-input" placeholder="Member Name">
-                    <button onclick="addMember()">Add Member</button>
+                    <button id="btn-add-member">Add Member</button>
                 </div>
 
                 <div class="form-group">
                     <h3>Submit Your Game</h3>
                     <input type="text" id="game-name-input" placeholder="Link or Name of Game">
-                    <button onclick="submitGame()">Submit Game</button>
+                    <button id="btn-submit-game">Submit Game</button>
                 </div>
             </div>
 
-            <!-- Right Side: Live Leaderboard -->
             <div class="panel">
                 <h2 class="leaderboard-title">🌟 Live Podium 🌟</h2>
-                <div id="leaderboard-display" class="leaderboard-list">
-                    <!-- Teams signing in will appear here -->
-                </div>
+                <div id="leaderboard-display" class="leaderboard-list"></div>
             </div>
             
         </div>
@@ -264,59 +184,48 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // 1. Initialize Supabase
+        // === REPLACE THESE TWO LINES ===
         const supabaseUrl = 'https://aednygiabhruljkcnxpy.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlZG55Z2lhYmhydWxqa2NueHB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1Mzg5NDIsImV4cCI6MjEwMjExNDk0Mn0.giZOi06uNOuE4q02DyGV0teO-sLZez2M34biJ26inCg';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        // ===============================
 
-        // Global variable to hold our specific team's ID once created
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         let currentTeamId = null;
 
-        /**
-         * Function to handle joining the podium (Login Screen -> Dashboard)
-         */
+        // Modern Event Listeners (This prevents the "Not Defined" error)
+        document.getElementById('btn-join').addEventListener('click', joinPodium);
+        document.getElementById('btn-add-member').addEventListener('click', addMember);
+        document.getElementById('btn-submit-game').addEventListener('click', submitGame);
+
         async function joinPodium() {
             const teamInput = document.getElementById('team-name-input').value;
-            
             if (!teamInput) {
                 alert("Please enter a team name!");
                 return;
             }
 
-            // Insert the new team into the 'teams' table
             const { data, error } = await supabase
                 .from('teams')
                 .insert([{ team_name: teamInput }])
-                .select(); // .select() returns the inserted row data
+                .select();
 
             if (error) {
-                console.error("Error creating team:", error);
-                alert("Failed to join. Check console.");
-            } else {
-                // Save the generated ID for this session
+                console.error("Database Error:", error);
+                alert("Supabase rejected the insert. Did you run the SQL script to update the RLS policies?");
+            } else if (data && data.length > 0) {
                 currentTeamId = data[0].id;
-                
-                // Update the dashboard UI with the team name
                 document.getElementById('display-team-name').innerText = teamInput;
                 
-                // Trigger the fade transition
                 document.getElementById('login-screen').classList.remove('active');
                 document.getElementById('login-screen').classList.add('hidden');
-                
                 document.getElementById('dashboard-screen').classList.remove('hidden');
                 document.getElementById('dashboard-screen').classList.add('active');
 
-                // Load initial leaderboard data
                 fetchLeaderboard();
-                
-                // Start listening for live updates from other teams!
                 subscribeToLivePodium();
             }
         }
 
-        /**
-         * Function to add a member to the current team
-         */
         async function addMember() {
             const memberInput = document.getElementById('member-name-input');
             const memberName = memberInput.value;
@@ -328,22 +237,16 @@
                 .insert([{ team_id: currentTeamId, member_name: memberName }]);
 
             if (!error) {
-                // Add it visually to the local UI immediately
                 const ul = document.getElementById('member-list-display');
                 const li = document.createElement('li');
                 li.innerText = memberName;
                 ul.appendChild(li);
-                
-                // Clear the input box
                 memberInput.value = "";
             } else {
                 console.error("Error adding member:", error);
             }
         }
 
-        /**
-         * Function to submit a game for the current team
-         */
         async function submitGame() {
             const gameInput = document.getElementById('game-name-input');
             const gameName = gameInput.value;
@@ -362,9 +265,6 @@
             }
         }
 
-        /**
-         * Function to fetch all teams currently signed in
-         */
         async function fetchLeaderboard() {
             const { data, error } = await supabase
                 .from('teams')
@@ -375,36 +275,25 @@
                 console.error("Error fetching leaderboard:", error);
                 return;
             }
-
             renderLeaderboard(data);
         }
 
-        /**
-         * Helper function to build the leaderboard UI
-         */
         function renderLeaderboard(teams) {
             const display = document.getElementById('leaderboard-display');
-            display.innerHTML = ""; // Clear existing
+            display.innerHTML = ""; 
 
             teams.forEach((team, index) => {
                 const div = document.createElement('div');
                 div.className = 'team-card';
-                // Add a podium number and the team name
                 div.innerHTML = `<span>#${index + 1} ${team.team_name}</span> <span>🎉</span>`;
                 display.appendChild(div);
             });
         }
 
-        /**
-         * Realtime function: Listens to Supabase for any new teams joining
-         * so the leaderboard updates without refreshing the page!
-         */
         function subscribeToLivePodium() {
             supabase
                 .channel('public:teams')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'teams' }, payload => {
-                    console.log("New team joined!", payload);
-                    // Re-fetch the leaderboard to update the UI
                     fetchLeaderboard();
                 })
                 .subscribe();
